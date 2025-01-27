@@ -1,5 +1,13 @@
 import OpAwsLc from './NativeOpAwsLc';
 
-export function multiply(a: number, b: number): number {
-  return OpAwsLc.multiply(a, b);
+declare global {
+  var __OPAwsLcProxy: object | undefined;
+}
+
+OpAwsLc.install();
+
+if (__OPAwsLcProxy !== undefined) {
+  console.error(
+    'OpAwsLc could not install JSI functions. Please check the native module implementation.'
+  );
 }
