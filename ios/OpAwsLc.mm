@@ -31,6 +31,7 @@ RCT_EXPORT_MODULE()
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
     (const facebook::react::ObjCTurboModule::InitParams &)params {
+  _callInvoker = params.jsInvoker;
   return std::make_shared<facebook::react::NativeOpAwsLcSpecJSI>(params);
 }
 
