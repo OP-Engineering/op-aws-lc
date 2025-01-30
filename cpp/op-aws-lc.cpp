@@ -1,5 +1,6 @@
 #include "op-aws-lc.h"
 #include "macros.h"
+#include "librn_aws_lc.h"
 
 namespace opawslc {
 namespace jsi = facebook::jsi;
@@ -9,6 +10,8 @@ void install(jsi::Runtime &rt,
              std::shared_ptr<react::CallInvoker> invoker) {
 
   auto hmac = HOST_STATIC_FN("makeHmac") {
+    void *key;
+    awsrc::generate_hmac_sha256_key(&key);
     return jsi::String::createFromUtf8(rt, "Hello, World!");
   });
 

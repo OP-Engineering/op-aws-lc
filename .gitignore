@@ -79,4 +79,5 @@ lib/
 
 # React Native Codegen
 ios/generated
+ios/*.xcframework
 android/generated
