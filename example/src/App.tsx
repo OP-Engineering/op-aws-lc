@@ -1,10 +1,15 @@
 import { Text, View, StyleSheet } from 'react-native';
-import { hmac } from 'op-aws-lc';
+import { generateHmacKey } from 'op-aws-lc';
+
+const key = generateHmacKey();
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Result: {hmac()}</Text>
+      <Text>
+        Hmac Key should have been generated. Hmac object is there?{' '}
+        {!!key ? 'Yes' : 'No'}
+      </Text>
     </View>
   );
 }
