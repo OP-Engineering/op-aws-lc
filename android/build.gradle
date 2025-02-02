@@ -8,7 +8,7 @@ buildscript {
   }
 
   dependencies {
-    classpath "com.android.tools.build:gradle:7.2.1"
+    classpath "com.android.tools.build:gradle:8.8.0"
     // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
   }
@@ -69,9 +69,11 @@ android {
     externalNativeBuild {
       cmake {
         cppFlags "-O2 -frtti -fexceptions -Wall -fstack-protector-all"
+        arguments "-DANDROID_STL=c++_shared"
         abiFilters (*reactNativeArchitectures())
       }
     }
+
   }
 
   externalNativeBuild {
@@ -81,7 +83,30 @@ android {
   }
 
   buildFeatures {
-    buildConfig true
+    // buildConfig true
+    prefab true
+    // prefabPublishing true
+  }
+
+  packagingOptions {
+    excludes = [
+      "META-INF",
+      "META-INF/**",
+      "**/libc++_shared.so",
+      "**/libfbjni.so",
+      "**/libjsi.so",
+      "**/libfolly_json.so",
+      "**/libfolly_runtime.so",
+      "**/libglog.so",
+      "**/libhermes.so",
+      "**/libhermes-executor-debug.so",
+      "**/libhermes_executor.so",
+      "**/libreactnative.so",
+      "**/libreactnativejni.so",
+      "**/libturbomodulejsijni.so",
+      "**/libreact_nativemodule_core.so",
+      "**/libjscexecutor.so"
+    ]
   }
 
   buildTypes {
@@ -99,13 +124,12 @@ android {
     targetCompatibility JavaVersion.VERSION_1_8
   }
 
-  sourceSets {
-    main {
-      if (isNewArchitectureEnabled()) {
-          java.srcDirs += [
-            "generated/java",
-            "generated/jni"
-          ]
+  sourceSets.main {
+     java {
+       if(isNewArchitectureEnabled()) {
+         srcDirs += ['src/newarch',
+         // This is needed to build Kotlin project with NewArch enabled
+           "${project.buildDir}/generated/source/codegen/java"]
       }
     }
   }
