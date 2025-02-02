@@ -3,6 +3,7 @@ package com.opawslc
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.common.annotations.FrameworkAPI
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
@@ -18,6 +19,7 @@ class OpAwsLcModule(reactContext: ReactApplicationContext) :
     return NAME
   }
 
+  @ReactMethod(isBlockingSynchronousMethod = true)
   override fun install(): String? {
     try {
       // 1. Get jsi::Runtime pointer
@@ -28,8 +30,7 @@ class OpAwsLcModule(reactContext: ReactApplicationContext) :
       val callInvokerHolder = reactApplicationContext.jsCallInvokerHolder as? CallInvokerHolderImpl
         ?: return "ReactApplicationContext.jsCallInvokerHolder is null!"
 
-      // 3. Install Nitro
-      install(jsContext.get(), callInvokerHolder)
+      installNativeJsi(jsContext.get(), callInvokerHolder)
 
       return null
     } catch (e: Throwable) {
@@ -38,7 +39,7 @@ class OpAwsLcModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  private external fun install(jsRuntimePointer: Long, callInvokerHolder: CallInvokerHolderImpl)
+  private external fun installNativeJsi(jsRuntimePointer: Long, callInvokerHolder: CallInvokerHolderImpl)
 
   companion object {
     const val NAME = "OpAwsLc"

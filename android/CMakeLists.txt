@@ -16,6 +16,7 @@ file(GLOB_RECURSE android_files RELATIVE ${CMAKE_SOURCE_DIR}
 add_library(${CMAKE_PROJECT_NAME} SHARED
         ${shared_files}
         ${android_files}
+        cpp-adapter.cpp
 )
 
 # Specifies a path to native header files.

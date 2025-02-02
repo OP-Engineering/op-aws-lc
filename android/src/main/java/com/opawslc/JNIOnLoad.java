@@ -9,7 +9,6 @@ public class JNIOnLoad {
   public synchronized static void initializeNative() {
     if (isInitialized) return;
     try {
-      Log.i(TAG, "Loading NitroModules C++ library...");
       System.loadLibrary("aws_lc_fips_0_13_1_crypto");
       System.loadLibrary("aws_lc_fips_0_13_1_rust_wrapper");
       System.loadLibrary("opawslc");
