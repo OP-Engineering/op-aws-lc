@@ -1,23 +1,29 @@
 import OpAwsLc from './NativeOpAwsLc';
 
 declare global {
-  var __OPAwsLcProxy: object | undefined;
+  var __OPAwsLcProxy: any;
 }
 
+type HmacKey = {};
+
 type Proxy = {
-  hmac: () => string;
+  generateHmacKey: () => HmacKey;
 };
 
-OpAwsLc.install();
+const errorMsg = OpAwsLc.install();
 
-if (__OPAwsLcProxy !== undefined) {
+if (errorMsg != undefined) {
+  console.error(`OpAwsLc could not be installed: ${errorMsg}`);
+}
+
+const proxy = global.__OPAwsLcProxy as Proxy;
+
+if (proxy == null) {
   console.error(
     'OpAwsLc could not install JSI functions. Please check the native module implementation.'
   );
 }
 
-const proxy = global.__OPAwsLcProxy! as Proxy;
-
-export function hmac() {
-  return proxy.hmac();
+export function generateHmacKey() {
+  return proxy.generateHmacKey();
 }

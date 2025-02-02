@@ -23,9 +23,12 @@ RCT_EXPORT_MODULE()
 // The installJSIBindingsWithRuntime method is called by TurboModuleManager when
 // the module is lazily initialized Therefore this function is just there to
 // trigger the initialization of the turbo module
-- (void)install {
-  if (!_didInstall) {
-    throw std::runtime_error("OP-AWS-LC module not installed");
+- (NSString *)install {
+  if (_didInstall) {
+      // installJSIBindingsWithRuntime ran successfully.
+    return nil;
+  } else {
+    return @"JSI Bindings could not be installed!";
   }
 }
 
