@@ -12,6 +12,7 @@
     "nuke": "rm -rf node_modules && rm -rf ios/Pods && rm -rf ios/Podfile.lock && rm -rf ios/build && yarn && yarn pods"
   },
   "dependencies": {
+    "jest": "^29.7.0",
     "react": "18.3.1",
     "react-native": "0.77.0"
   },

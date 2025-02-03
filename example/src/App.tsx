@@ -1,23 +1,27 @@
-import { Text, View, StyleSheet } from 'react-native';
-import { generateHmacKey } from 'op-aws-lc';
-
-const key = generateHmacKey();
+import { Text, StyleSheet, SafeAreaView } from 'react-native';
+import { useEffect, useState } from 'react';
+import { displayResults, runTests, type DescribeBlock } from './op-test';
+import './tests';
 
 export default function App() {
+  let [results, setResults] = useState<DescribeBlock | null>(null);
+  useEffect(() => {
+    let run = async () => {
+      let results2 = await runTests();
+      setResults(results2);
+    };
+    run();
+  }, []);
   return (
-    <View style={styles.container}>
-      <Text>
-        Hmac Key should have been generated. Hmac object is there?{' '}
-        {!!key ? 'Yes' : 'No'}
-      </Text>
-    </View>
+    <SafeAreaView style={styles.container}>
+      {results ? displayResults(results) : <Text>Loading...</Text>}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#222',
   },
 });
