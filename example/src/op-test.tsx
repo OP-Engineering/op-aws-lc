@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   resultRow: {
-    padding: 12,
+    padding: 4,
     borderBottomWidth: 1,
     borderBottomColor: '#444',
     flexDirection: 'row',
