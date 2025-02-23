@@ -18,8 +18,8 @@ package-dylibs:
 # Delete old files
 	rm -rf generated/libaws_lc_fips*.xcframework
 # Reset the xcframework folders from the templates
-	cp -r libaws_lc_fips.xcframework generated
-	cp -r libaws_lc_fips_rust_wrapper.xcframework generated
+	cp -r templates/libaws_lc_fips.xcframework generated
+	cp -r templates/libaws_lc_fips_rust_wrapper.xcframework generated
 # Extract the dylibs from the target folder
 	cp target/aarch64-apple-ios/release/build/aws-lc-fips-sys-*/out/build/artifacts/libaws_lc_fips_* generated/
 	mv -f generated/libaws_lc_fips_*_crypto.dylib generated/libaws_lc_fips
@@ -40,7 +40,7 @@ package-dylibs:
 	install_name_tool -id @rpath/libaws_lc_fips_rust_wrapper.framework/libaws_lc_fips_rust_wrapper generated/libaws_lc_fips_rust_wrapper.xcframework/ios-arm64-simulator/libaws_lc_fips_rust_wrapper.framework/libaws_lc_fips_rust_wrapper
 
 copy-ios:
-	cp -rf generated/*.xcframework ../op-aws-lc/ios
+	cp -rf generated/*.xcframework ../ios
 
 package-xcframework:
 	xcodebuild -create-xcframework -library target/aarch64-apple-ios/release/$(LIB_FILE) -headers generated/include -library target/aarch64-apple-ios-sim/release/$(LIB_FILE) -headers generated/include -output generated/$(XCFRAMEWORK)
