@@ -31,9 +31,9 @@ include_directories(
 )
 
 
-cmake_path(SET LIB_AWS_LC_PATH ${CMAKE_CURRENT_SOURCE_DIR}/jniLibs/${ANDROID_ABI}/librn_aws_lc.a NORMALIZE)
-add_library(librn_aws_lc STATIC IMPORTED)
-set_target_properties(librn_aws_lc PROPERTIES IMPORTED_LOCATION ${LIB_AWS_LC_PATH})
+cmake_path(SET LIB_AWS_LC_PATH ${CMAKE_CURRENT_SOURCE_DIR}/jniLibs/${ANDROID_ABI}/libaws_lc.a NORMALIZE)
+add_library(libaws_lc STATIC IMPORTED)
+set_target_properties(libaws_lc PROPERTIES IMPORTED_LOCATION ${LIB_AWS_LC_PATH})
 
 cmake_path(SET LIB_AWS_LC_FIPS_CRYPTO_PATH ${CMAKE_CURRENT_SOURCE_DIR}/jniLibs/${ANDROID_ABI}/libaws_lc_fips_0_13_1_crypto.so NORMALIZE)
 add_library(libaws_lc_fips_0_13_1_crypto SHARED IMPORTED)
@@ -52,7 +52,7 @@ find_package(fbjni REQUIRED CONFIG)
 if (ReactAndroid_VERSION_MINOR GREATER_EQUAL 76)
 target_link_libraries(
   ${CMAKE_PROJECT_NAME}
-  librn_aws_lc
+  libaws_lc
   libaws_lc_fips_0_13_1_crypto
   libaws_lc_fips_0_13_1_rust_wrapper
   ${LOG_LIB}
@@ -64,7 +64,7 @@ else()
 target_link_libraries(
   ${CMAKE_PROJECT_NAME}
   ${LOG_LIB}
-  librn_aws_lc
+  libaws_lc
   libaws_lc_fips_0_13_1_crypto
   libaws_lc_fips_0_13_1_rust_wrapper
   fbjni::fbjni

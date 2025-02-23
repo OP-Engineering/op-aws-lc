@@ -56,24 +56,24 @@ android: android-build copy-android notify
 
 copy-android:
 # Copy header
-	mkdir -p ../op-aws-lc/android/src/main/jni/include
-	cp -rf generated/include/* ../op-aws-lc/android/src/main/jni/include
+	mkdir -p ../android/src/main/jni/include
+	cp -rf generated/include/* ../android/src/main/jni/include
 # Copy per architecture generated .a and needed .so files
-	mkdir -p ../op-aws-lc/android/jniLibs/x86
-	cp target/i686-linux-android/release/$(LIB_FILE) ../op-aws-lc/android/jniLibs/x86
-	cp target/i686-linux-android/release/build/aws-lc-fips-sys-*/out/build/artifacts/libaws_lc_fips_* ../op-aws-lc/android/jniLibs/x86
+	mkdir -p ../android/jniLibs/x86
+	cp target/i686-linux-android/release/$(LIB_FILE) ../android/jniLibs/x86
+	cp target/i686-linux-android/release/build/aws-lc-fips-sys-*/out/build/artifacts/libaws_lc_fips_* ../android/jniLibs/x86
 
-	mkdir -p ../op-aws-lc/android/jniLibs/x86_64
-	cp target/x86_64-linux-android/release/$(LIB_FILE) ../op-aws-lc/android/jniLibs/x86_64
-	cp target/x86_64-linux-android/release/build/aws-lc-fips-sys-*/out/build/artifacts/libaws_lc_fips_* ../op-aws-lc/android/jniLibs/x86_64
+	mkdir -p ../android/jniLibs/x86_64
+	cp target/x86_64-linux-android/release/$(LIB_FILE) ../android/jniLibs/x86_64
+	cp target/x86_64-linux-android/release/build/aws-lc-fips-sys-*/out/build/artifacts/libaws_lc_fips_* ../android/jniLibs/x86_64
 
-	mkdir -p ../op-aws-lc/android/jniLibs/armeabi-v7a
-	cp target/armv7-linux-androideabi/release/$(LIB_FILE) ../op-aws-lc/android/jniLibs/armeabi-v7a
-	cp target/armv7-linux-androideabi/release/build/aws-lc-fips-sys-*/out/build/artifacts/libaws_lc_fips_* ../op-aws-lc/android/jniLibs/armeabi-v7a
+	mkdir -p ../android/jniLibs/armeabi-v7a
+	cp target/armv7-linux-androideabi/release/$(LIB_FILE) ../android/jniLibs/armeabi-v7a
+	cp target/armv7-linux-androideabi/release/build/aws-lc-fips-sys-*/out/build/artifacts/libaws_lc_fips_* ../android/jniLibs/armeabi-v7a
 
-	mkdir -p ../op-aws-lc/android/jniLibs/arm64-v8a
-	cp target/aarch64-linux-android/release/$(LIB_FILE) ../op-aws-lc/android/jniLibs/arm64-v8a
-	cp target/aarch64-linux-android/release/build/aws-lc-fips-sys-*/out/build/artifacts/libaws_lc_fips_* ../op-aws-lc/android/jniLibs/arm64-v8a
+	mkdir -p ../android/jniLibs/arm64-v8a
+	cp target/aarch64-linux-android/release/$(LIB_FILE) ../android/jniLibs/arm64-v8a
+	cp target/aarch64-linux-android/release/build/aws-lc-fips-sys-*/out/build/artifacts/libaws_lc_fips_* ../android/jniLibs/arm64-v8a
 
 android-build:
 	BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/sysroot" cargo ndk --target aarch64-linux-android --platform 31 build --release
