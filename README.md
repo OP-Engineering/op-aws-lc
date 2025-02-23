@@ -1,6 +1,6 @@
 # op-aws-lc
 
-AWS LC with FIPS for React Native
+AWS LC with FIPS for React Native. AWS-LC is Amazons LibCrypto. Besides being tailored for their specific use-cases, it is battle tested and constantly updated. This library uses the Rust version for ease of compiling but internally it runs the same code as the base AWS-LC version (it contains code from BoringSSL and handwritten assembly).
 
 ## Installation
 
@@ -17,6 +17,8 @@ npx expo prebuild
 ```
 
 ## Motivation
+
+The main motivation is not to bring yet another crypto library to the ecosystem, but rather a FIPS certified one for hardened security requirements.
 
 FIPS (Federal Information Processing Standards) is a set of standards and guidelines for cryptographic modules, established by the US National Institute of Standards and Technology (NIST). FIPS 140-2/3 certification ensures that cryptographic modules meet rigorous security requirements for use in government and regulated industries.
 
@@ -49,7 +51,9 @@ if (key.verify('hello', signature) == false) {
 
 ## Get in touch
 
-The rest of the algorithms inside aws-lc still need to be bridged. Get in contact by [joining our Discord](https://discord.gg/W9XmqCQCKP) or write to ospfranco@gmail.com for further assistance
+The rest of the algorithms inside aws-lc still need to be bridged. Get in contact by [joining our Discord](https://discord.gg/W9XmqCQCKP) or write to ospfranco@gmail.com for further assistance.
+
+You can see the [list of available funcitonality in the Rust crate here](https://docs.rs/aws-lc-rs/latest/aws_lc_rs/). Eventually op-aws-lc aims to cover all of these.
 
 ## License
 
