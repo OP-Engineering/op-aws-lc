@@ -34,6 +34,23 @@ This library binds the Rust version of AWS-LC with FIPS turned on.
 
 ## Usage
 
+### Hmac
+
+```ts
+import { generateHmacKey, HmacAlgorithm } from '@op-engineering/op-aws-lc';
+
+const key = generateHmacKey(HmacAlgorithm.SHA256);
+// Signature is an ArrayBuffer that contains the raw bytes of the tag
+const signature = key.sign('hello');
+if (key.verify('hello', signature) == false) {
+  console.error('Signature verification failed!');
+}
+```
+
+## Get in touch
+
+The rest of the algorithms inside aws-lc still need to be bridged. Get in contact by [joining our Discord](https://discord.gg/W9XmqCQCKP) or write to ospfranco@gmail.com for further assistance
+
 ## License
 
 MIT
