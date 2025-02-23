@@ -1,4 +1,4 @@
-import { generateHmacKey, HmacAlgorithm } from 'op-aws-lc';
+import { generateHmacKey, HmacAlgorithm } from '@op-engineering/op-aws-lc';
 import { describe, expect, it } from '../op-test';
 
 describe('hmac', () => {
