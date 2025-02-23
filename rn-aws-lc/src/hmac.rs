@@ -103,5 +103,53 @@ pub extern "C" fn hmac_sign(
         write_to_c_buffer(tag.as_ref(), output, output_len);
     }
 
+    // Prevent deallocation of the key
+    std::mem::forget(key);
+
     return CHmacError::Ok;
+}
+
+#[no_mangle]
+pub extern "C" fn hmac_verify(
+    key_handle: *mut c_void,
+    data: *const u8,
+    data_len: usize,
+    tag: *const u8,
+    tag_len: usize,
+) -> CHmacError {
+    if key_handle.is_null() {
+        return CHmacError::InvalidKey;
+    }
+
+    if data.is_null() || data_len == 0 {
+        return CHmacError::InvalidInput;
+    }
+
+    if tag.is_null() || tag_len == 0 {
+        return CHmacError::InvalidInput;
+    }
+
+    let key = unsafe { Box::from_raw(key_handle as *mut hmac::Key) };
+    let msg = unsafe { slice::from_raw_parts(data, data_len) };
+    let tag = unsafe { slice::from_raw_parts(tag, tag_len) };
+
+    let result = hmac::verify(&key, msg, tag);
+
+    if result.is_err() {
+        return CHmacError::CryptoError;
+    }
+
+    // Prevent deallocation of the key
+    std::mem::forget(key);
+
+    return CHmacError::Ok;
+}
+
+#[no_mangle]
+pub extern "C" fn hmac_destroy(key_handle: *mut c_void) {
+    if key_handle.is_null() {
+        return;
+    }
+
+    let _key = unsafe { Box::from_raw(key_handle as *mut hmac::Key) };
 }

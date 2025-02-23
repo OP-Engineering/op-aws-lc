@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.platforms    = { :ios => min_ios_version_supported }
   s.source       = { :git => "http://github.com/OP-Engineering/op-aws-lc.git", :tag => "#{s.version}" }
 
-  s.source_files = "ios/**/*.{h,m,mm}", "cpp/**/*.{hpp,cpp,c,h}"
+  s.source_files = "ios/OpAwsLc.{h,m,mm}", "cpp/**/*.{hpp,cpp,c,h}"
   s.vendored_frameworks = "ios/*.xcframework"
 
   # Use install_modules_dependencies helper to install the dependencies if React Native version >=0.71.0.

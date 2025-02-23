@@ -13,6 +13,7 @@ ios: clean ios-build package-xcframework package-dylibs copy-ios notify
 
 clean:
 	rm -rf generated/$(XCFRAMEWORK)
+	rm -rf ../ios/$(XCFRAMEWORK)
 
 package-dylibs:
 # Delete old files
@@ -41,6 +42,7 @@ package-dylibs:
 
 copy-ios:
 	cp -rf generated/*.xcframework ../ios
+	cd ../example/ios && yarn pods
 
 package-xcframework:
 	xcodebuild -create-xcframework -library target/aarch64-apple-ios/release/$(LIB_FILE) -headers generated/include -library target/aarch64-apple-ios-sim/release/$(LIB_FILE) -headers generated/include -output generated/$(XCFRAMEWORK)

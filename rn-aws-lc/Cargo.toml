@@ -1,5 +1,5 @@
 [package]
-name = "rn-aws-lc"
+name = "aws-lc"
 version = "0.0.0"
 edition = "2021"
 
