@@ -62,16 +62,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "aws-lc"
-version = "0.0.0"
-dependencies = [
- "aws-lc-rs",
- "cbindgen",
- "lazy_static",
- "thiserror",
-]
-
-[[package]]
 name = "aws-lc-fips-sys"
 version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -488,6 +478,16 @@ name = "regex-syntax"
 version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
+
+[[package]]
+name = "rn-aws-lc"
+version = "0.0.0"
+dependencies = [
+ "aws-lc-rs",
+ "cbindgen",
+ "lazy_static",
+ "thiserror",
+]
 
 [[package]]
 name = "rustc-hash"
