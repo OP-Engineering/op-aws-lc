@@ -1,12 +1,13 @@
 {
   "name": "@op-engineering/op-aws-lc",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "AWS LC with FIPS for React Native",
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
   "exports": {
     ".": {
+      "types": "./lib/typescript/module/src/index.d.ts",
       "import": {
         "types": "./lib/typescript/module/src/index.d.ts",
         "default": "./lib/module/index.js"
