@@ -1,5 +1,5 @@
 {
-  "name": "op-aws-lc",
+  "name": "@op-engineering/op-aws-lc",
   "version": "0.1.0",
   "description": "AWS LC with FIPS for React Native",
   "source": "./src/index.tsx",
