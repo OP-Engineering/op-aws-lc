@@ -1,18 +1,25 @@
 #include "op-aws-lc.h"
 #include "HmacKey.h"
 #include "macros.h"
+#include "libaws_lc.h"
 
 namespace opawslc {
 namespace jsi = facebook::jsi;
 namespace react = facebook::react;
+  
+  aws_lc::CHmacAlgorithm fromDouble(double value) {
+    int intValue = static_cast<int>(value);
+    if (intValue < static_cast<int>(aws_lc::CHmacAlgorithm::SHA256) || intValue > static_cast<int>(aws_lc::CHmacAlgorithm::SHA512)) {
+      throw std::out_of_range("Invalid value for CHmacAlgorithm");
+    }
+    return static_cast<aws_lc::CHmacAlgorithm>(intValue);
+  }
 
 void install(jsi::Runtime &rt, std::shared_ptr<react::CallInvoker> invoker) {
-
-  // TODO: I guess this is not only a sha256, it should take a param
-  // HOST_STATIC_FN macro taking a name is pretty useless tbh, I don't know if
-  // this is needed
   auto generate_hmac_sha256_key = HOST_STATIC_FN("generateHmacKey") {
-    std::shared_ptr<HmacKey> key = std::make_shared<HmacKey>(rt);
+    aws_lc::CHmacAlgorithm algorithm = fromDouble(args[0].asNumber());
+    std::shared_ptr<HmacKey> key = std::make_shared<HmacKey>(rt,
+                                                             algorithm);
 
     return jsi::Object::createFromHostObject(rt, key);
   });
