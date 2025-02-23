@@ -7,7 +7,6 @@
   "module": "./lib/module/index.js",
   "exports": {
     ".": {
-      "types": "./lib/typescript/module/src/index.d.ts",
       "import": {
         "types": "./lib/typescript/module/src/index.d.ts",
         "default": "./lib/module/index.js"
