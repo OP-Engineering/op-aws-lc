@@ -8,8 +8,8 @@
     "start": "react-native start",
     "build:android": "react-native build-android --extra-params \"--no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a\"",
     "build:ios": "react-native build-ios --scheme OpAwsLcExample --mode Debug --extra-params \"-sdk iphonesimulator CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO\"",
-    "pods": "cd ios && bundle exec pod install --repo-update && rm -rf ./ios/.xcode.env.local",
-    "pods:nuke": "cd ios && rm -rf Pods && bundle exec pod install --repo-update && rm -rf ./ios/.xcode.env.local",
+    "pods": "cd ios && pod install --repo-update && rm -rf ./ios/.xcode.env.local",
+    "pods:nuke": "cd ios && rm -rf Pods && pod install --repo-update && rm -rf ./ios/.xcode.env.local",
     "nuke": "rm -rf node_modules && rm -rf ios/Pods && rm -rf ios/Podfile.lock && rm -rf ios/build && yarn && yarn pods"
   },
   "dependencies": {
