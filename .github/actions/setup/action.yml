@@ -4,6 +4,40 @@ description: Setup Node.js and install dependencies
 runs:
   using: composite
   steps:
+    - name: Setup Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.18'
+
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      if: ${{ !steps.cargo-cache.outputs.cache-hit }}
+      with:
+        targets: x86_64-apple-ios,aarch64-apple-ios,aarch64-apple-ios-sim,aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android,i686-linux-android
+
+    # As it turns out, this cache will not always work, because caches are isolated by reference
+    # since each tag is it's own reference, this is never restored
+    # One workaround is to have the default branch has the same cache key
+    # the main_cache.yml workflow should trigger a cache update on the default branch
+    - name: Cargo Restore Cache
+      id: cargo-cache
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
+
+    - name: Install cargo binaries
+      if: ${{ !steps.cargo-cache.outputs.cache-hit }}
+      run: scripts/install-cargo-bin.sh
+      shell: bash
+
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:

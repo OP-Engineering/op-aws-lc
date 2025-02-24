@@ -80,6 +80,6 @@ lib/
 # React Native Codegen
 ios/generated
 ios/*.xcframework
-android/jniLibs
+android/jniLibs/*
 android/src/main/jni
 android/generated
