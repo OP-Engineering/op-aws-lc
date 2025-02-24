@@ -79,6 +79,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Build rust for Android
+        run: |
+          make android
+        working-directory: rust
+
       - name: Build example for Android
         env:
           JAVA_OPTS: '-XX:MaxHeapSize=6g'
@@ -110,6 +115,11 @@ jobs:
           pod install
         env:
           NO_FLIPPER: 1
+
+      - name: Build rust for ios
+        run: |
+          make ios
+        working-directory: rust
 
       - name: Build example for iOS
         run: |
