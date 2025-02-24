@@ -50,8 +50,15 @@ const key = hmac.Key.generate(HmacAlgorithm.SHA256);
 
 const signature = hmac.sign(key, 'hello');
 
-if (hmac.verify(key, 'hello', signature) == false) {
-  console.error('Signature verification failed!');
+const verified = hmac.verify(key, 'hello', signature);
+
+// There are also async versions when the data you are trying to verify is large
+const signature = hmac.signAsync(key, 'hello');
+
+const verified = hmac.verifyAsync(key, 'hello', signature);
+
+if (!verified) {
+  throw new Error('failed to pass hmac verfication');
 }
 ```
 

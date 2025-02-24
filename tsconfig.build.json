@@ -1,4 +1,4 @@
 {
   "extends": "./tsconfig",
-  "exclude": ["rn-aws-lc", "example", "lib"]
+  "exclude": ["rust", "example", "lib"]
 }
