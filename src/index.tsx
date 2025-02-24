@@ -8,8 +8,14 @@ type HmacKey = ArrayBuffer;
 
 type Proxy = {
   hmac: {
-    sign: (key: HmacKey, data: string) => string;
-    verify: (key: HmacKey, data: string, signature: string) => boolean;
+    signAsync: (key: HmacKey, data: string) => Promise<HmacKey>;
+    sign: (key: HmacKey, data: string) => HmacKey;
+    verifyAsync: (
+      key: HmacKey,
+      data: string,
+      signature: HmacKey
+    ) => Promise<boolean>;
+    verify: (key: HmacKey, data: string, signature: HmacKey) => boolean;
     Key: {
       generate: (algorithm: HmacAlgorithm) => HmacKey;
     };

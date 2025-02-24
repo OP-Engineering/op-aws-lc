@@ -32,4 +32,24 @@ describe('hmac', () => {
     const result = hmac.verify(key, 'invalid', signature);
     expect(result).toBe(false);
   });
+
+  it('hmac can sign async', async () => {
+    const key = hmac.Key.generate(HmacAlgorithm.SHA256);
+    const signature = await hmac.signAsync(key, 'hello');
+    expect(!!signature).toBe(true);
+  });
+
+  it('hmac can verify async', async () => {
+    const key = hmac.Key.generate(HmacAlgorithm.SHA256);
+    const signature = await hmac.signAsync(key, 'hello');
+    const result = await hmac.verifyAsync(key, 'hello', signature);
+    expect(result).toBe(true);
+  });
+
+  it('hmac verify async can reject invalid data', async () => {
+    const key = hmac.Key.generate(HmacAlgorithm.SHA256);
+    const signature = await hmac.signAsync(key, 'hello');
+    const result = await hmac.verifyAsync(key, 'invalid', signature);
+    expect(result).toBe(false);
+  });
 });
