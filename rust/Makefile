@@ -62,7 +62,7 @@ ios-build:
 	cargo build --release --target aarch64-apple-ios-sim # Works
 	# cargo build --release --target x86_64-apple-ios # not supported
 
-android-ci: android-build-debug copy-android
+android-ci: android-build copy-android
 
 android: android-build copy-android notify
 
