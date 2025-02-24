@@ -2,6 +2,8 @@
 
 AWS LC with FIPS for React Native. AWS-LC is Amazons LibCrypto. Besides being tailored for their specific use-cases, it is battle tested and constantly updated. This library uses the Rust version for ease of compiling but internally it runs the same code as the base AWS-LC version (it contains code from BoringSSL and handwritten assembly).
 
+AWS-LC-RS follows closely the Ring API, aiming to be a drop-in replacement, this library also tries to mimic the API in a JS idiomatic way.
+
 ## Installation
 
 ```sh
@@ -39,12 +41,14 @@ This library binds the Rust version of AWS-LC with FIPS turned on.
 ### Hmac
 
 ```ts
-import { generateHmacKey, HmacAlgorithm } from '@op-engineering/op-aws-lc';
+import { hmac, HmacAlgorithm } from '@op-engineering/op-aws-lc';
 
-const key = generateHmacKey(HmacAlgorithm.SHA256);
-// Signature is an ArrayBuffer that contains the raw bytes of the tag
-const signature = key.sign('hello');
-if (key.verify('hello', signature) == false) {
+// key is an ArrayBuffer that contains the raw bytes of the tag
+const key = hmac.Key.generate(HmacAlgorithm.SHA256);
+
+const signature = hmac.sign(key, 'hello');
+
+if (hmac.verify(key, 'hello', signature) == false) {
   console.error('Signature verification failed!');
 }
 ```

@@ -4,12 +4,16 @@ declare global {
   var __OPAwsLcProxy: any;
 }
 
-type HmacKey = {
-  sign: (data: string) => string;
-  verify: (data: string, signature: string) => boolean;
-};
+type HmacKey = ArrayBuffer;
 
 type Proxy = {
+  hmac: {
+    sign: (key: HmacKey, data: string) => string;
+    verify: (key: HmacKey, data: string, signature: string) => boolean;
+    Key: {
+      generate: (algorithm: HmacAlgorithm) => HmacKey;
+    };
+  };
   generateHmacKey: (algorithm: HmacAlgorithm) => HmacKey;
 };
 
@@ -34,6 +38,4 @@ export enum HmacAlgorithm {
   SHA512 = 2,
 }
 
-export function generateHmacKey(algorithm: HmacAlgorithm): HmacKey {
-  return proxy.generateHmacKey(algorithm);
-}
+export const hmac = proxy.hmac;

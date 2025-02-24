@@ -1,5 +1,4 @@
-#ifndef OPAWSLC_H
-#define OPAWSLC_H
+#pragma once
 
 #include <ReactCommon/CallInvoker.h>
 #include <jsi/jsi.h>
@@ -12,4 +11,3 @@ void install(jsi::Runtime &runtime,
              std::shared_ptr<react::CallInvoker> invoker);
 } // namespace opawslc
 
-#endif /* OPAWSLC_H */
