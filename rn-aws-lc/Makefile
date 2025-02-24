@@ -9,6 +9,16 @@ notify:
 	osascript -e 'display notification "Build completed" with title "AWS LC"'
 	echo "🟢 Build Completed!"
 
+lint:
+	cargo clippy --all-features --all-targets -- --no-deps -D warnings
+
+fix:
+	cargo clippy --all-targets --all-features --fix --allow-dirty --allow-staged
+	cargo fmt --all
+
+nuke:
+	rm -rf ./target
+
 ios: clean ios-build package-xcframework package-dylibs copy-ios notify
 
 clean:

@@ -45,8 +45,10 @@ impl From<aws_lc_rs::error::Unspecified> for CHmacError {
     }
 }
 
+/// # Safety
+/// All pointers should be valid
 #[no_mangle]
-pub extern "C" fn generate_hmac_key(
+pub unsafe extern "C" fn generate_hmac_key(
     algorithm: CHmacAlgorithm,
     key_handle: *mut *mut c_void,
     err: *mut *mut c_char,
@@ -54,9 +56,8 @@ pub extern "C" fn generate_hmac_key(
     let rng = rand::SystemRandom::new();
     match hmac::Key::generate(algorithm.into(), &rng) {
         Ok(key) => {
-            unsafe {
-                *key_handle = Box::into_raw(Box::new(key)) as *mut c_void;
-            }
+            *key_handle = Box::into_raw(Box::new(key)) as *mut c_void;
+
             CHmacError::Ok
         }
         Err(e) => {
@@ -70,8 +71,10 @@ pub extern "C" fn generate_hmac_key(
     }
 }
 
+/// # Safety
+/// All pointers should be valid
 #[no_mangle]
-pub extern "C" fn hmac_sign(
+pub unsafe extern "C" fn hmac_sign(
     key_handle: *mut c_void,
     data: *const u8,
     data_len: usize,
@@ -81,17 +84,21 @@ pub extern "C" fn hmac_sign(
 ) -> CHmacError {
     if key_handle.is_null() {
         set_error(err, CHmacError::InvalidKey.to_string().as_str());
+
         return CHmacError::InvalidKey;
     }
 
     if data.is_null() || data_len == 0 {
-        set_error(err, CHmacError::InvalidInput.to_string().as_str());
+        unsafe {
+            set_error(err, CHmacError::InvalidInput.to_string().as_str());
+        }
         return CHmacError::InvalidInput;
     }
 
     if output.is_null() || output_len.is_null() {
-        // TODO: See if this can be implemented as Into instead of manually setting the error
-        set_error(err, CHmacError::InvalidOutput.to_string().as_str());
+        unsafe {
+            set_error(err, CHmacError::InvalidOutput.to_string().as_str());
+        }
         return CHmacError::InvalidOutput;
     }
 
@@ -106,11 +113,13 @@ pub extern "C" fn hmac_sign(
     // Prevent deallocation of the key
     std::mem::forget(key);
 
-    return CHmacError::Ok;
+    CHmacError::Ok
 }
 
+/// # Safety
+/// All pointers should be valid
 #[no_mangle]
-pub extern "C" fn hmac_verify(
+pub unsafe extern "C" fn hmac_verify(
     key_handle: *mut c_void,
     data: *const u8,
     data_len: usize,
@@ -129,9 +138,9 @@ pub extern "C" fn hmac_verify(
         return CHmacError::InvalidInput;
     }
 
-    let key = unsafe { Box::from_raw(key_handle as *mut hmac::Key) };
-    let msg = unsafe { slice::from_raw_parts(data, data_len) };
-    let tag = unsafe { slice::from_raw_parts(tag, tag_len) };
+    let key = Box::from_raw(key_handle as *mut hmac::Key);
+    let msg = slice::from_raw_parts(data, data_len);
+    let tag = slice::from_raw_parts(tag, tag_len);
 
     let result = hmac::verify(&key, msg, tag);
 
@@ -142,7 +151,7 @@ pub extern "C" fn hmac_verify(
     // Prevent deallocation of the key
     std::mem::forget(key);
 
-    return CHmacError::Ok;
+    CHmacError::Ok
 }
 
 #[no_mangle]

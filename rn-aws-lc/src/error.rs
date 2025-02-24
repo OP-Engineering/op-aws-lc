@@ -6,12 +6,13 @@ lazy_static::lazy_static! {
     static ref GLOBAL_ERROR: Mutex<Option<String>> = Mutex::new(None);
 }
 
-pub fn set_error(err: *mut *const c_char, error_message: &str) {
+/// # Safety
+///
+/// The calling context should have passed a valid pointer to set the error to
+pub unsafe fn set_error(err: *mut *const c_char, error_message: &str) {
     let mut global_error = GLOBAL_ERROR.lock().unwrap();
     *global_error = Some(error_message.to_string());
-    unsafe {
-        *err = error_message.as_ptr() as *const c_char;
-    }
+    *err = error_message.as_ptr() as *const c_char;
 }
 
 #[no_mangle]
