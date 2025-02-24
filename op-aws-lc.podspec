@@ -22,12 +22,12 @@ Pod::Spec.new do |s|
   if respond_to?(:install_modules_dependencies, true)
     install_modules_dependencies(s)
     s.pod_target_xcconfig = {
-    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'x86_64'
-  }
+      'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'x86_64'
+    }
 
-  s.user_target_xcconfig = {
-    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'x86_64'
-  }
+    s.user_target_xcconfig = {
+      'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'x86_64'
+    }
   else
     s.dependency "React-Core"
 
