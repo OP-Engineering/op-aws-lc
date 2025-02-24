@@ -84,7 +84,7 @@ jobs:
           make android
         working-directory: rust
         env:
-          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_ROOT }}
+          ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/27.2.12479018
 
       - name: Build example for Android
         env:
