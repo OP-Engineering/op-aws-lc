@@ -1,7 +1,7 @@
 #pragma once
 
 #include <jsi/jsi.h>
-#include "libaws_lc.h"
+#include <libaws_lc.h>
 
 namespace opawslc {
 namespace jsi = facebook::jsi;

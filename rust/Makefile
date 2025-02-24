@@ -58,9 +58,8 @@ package-xcframework:
 	xcodebuild -create-xcframework -library target/aarch64-apple-ios/release/$(LIB_FILE) -headers generated/include -library target/aarch64-apple-ios-sim/release/$(LIB_FILE) -headers generated/include -output generated/$(XCFRAMEWORK)
 
 ios-build:
-	cargo build --release --target aarch64-apple-ios # Works
-	cargo build --release --target aarch64-apple-ios-sim # Works
-	# cargo build --release --target x86_64-apple-ios # not supported
+	cargo build --release --target aarch64-apple-ios 
+	cargo build --release --target aarch64-apple-ios-sim 
 
 android-ci: android-build copy-android
 
