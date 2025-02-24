@@ -18,6 +18,8 @@ npm install @op-engineering/op-aws-lc
 npx expo prebuild
 ```
 
+Unfortunately, AWS-LC with FIPS does not compile for mac intel architectures, so if you add this library to your app it will not be able to be compiled for older Intel Macs.
+
 ## Motivation
 
 The main motivation is not to bring yet another crypto library to the ecosystem, but rather a FIPS certified one for hardened security requirements.
