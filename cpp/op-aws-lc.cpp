@@ -2,8 +2,6 @@
 #include "hmac.h"
 #include <libaws_lc.h>
 #include "macros.h"
-#include <iomanip>
-#include <iostream>
 
 namespace opawslc {
 namespace jsi = facebook::jsi;
