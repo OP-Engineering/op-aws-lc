@@ -58,8 +58,8 @@ package-xcframework:
 	xcodebuild -create-xcframework -library target/aarch64-apple-ios/release/$(LIB_FILE) -headers generated/include -library target/aarch64-apple-ios-sim/release/$(LIB_FILE) -headers generated/include -output generated/$(XCFRAMEWORK)
 
 ios-build:
-	cargo build --release --target aarch64-apple-ios # Works
-	cargo build --release --target aarch64-apple-ios-sim # Works
+	cargo build --release --target aarch64-apple-ios
+	cargo build --release --target aarch64-apple-ios-sim
 	# cargo build --release --target x86_64-apple-ios # not supported
 
 android: android-build copy-android notify
@@ -86,7 +86,7 @@ copy-android:
 	cp target/aarch64-linux-android/release/build/aws-lc-fips-sys-*/out/build/artifacts/libaws_lc_fips_* ../android/jniLibs/arm64-v8a
 
 android-build:
-	BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/sysroot" cargo ndk --target aarch64-linux-android --platform 31 build --release
-	BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/sysroot" cargo ndk --target armv7-linux-androideabi --platform 31 build --release
-	BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/sysroot" cargo ndk --target i686-linux-android --platform 31 build --release
-	BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/sysroot" cargo ndk --target x86_64-linux-android --platform 31 build --release
+	BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot" cargo ndk --target aarch64-linux-android --platform 31 build --release
+	BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot" cargo ndk --target armv7-linux-androideabi --platform 31 build --release
+	BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot" cargo ndk --target i686-linux-android --platform 31 build --release
+	BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot" cargo ndk --target x86_64-linux-android --platform 31 build --release
