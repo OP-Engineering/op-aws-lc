@@ -81,7 +81,7 @@ jobs:
 
       - name: Build rust for Android
         run: |
-          make android
+          make android-ci
         working-directory: rust
         env:
           ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/27.2.12479018
