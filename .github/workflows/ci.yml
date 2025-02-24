@@ -83,6 +83,8 @@ jobs:
         run: |
           make android
         working-directory: rust
+        env:
+          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
 
       - name: Build example for Android
         env:
