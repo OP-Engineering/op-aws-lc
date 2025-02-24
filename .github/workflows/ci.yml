@@ -109,13 +109,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cocoapods-
 
-      - name: Install cocoapods
-        run: |
-          cd example/ios
-          pod install
-        env:
-          NO_FLIPPER: 1
-
       - name: Build rust for ios
         run: |
           make ios
