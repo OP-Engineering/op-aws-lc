@@ -21,6 +21,7 @@ type Proxy = {
     };
   };
   generateHmacKey: (algorithm: HmacAlgorithm) => HmacKey;
+  rsa: any;
 };
 
 const errorMsg = OpAwsLc.install();
@@ -45,3 +46,4 @@ export enum HmacAlgorithm {
 }
 
 export const hmac = proxy.hmac;
+export const rsa = proxy.rsa;

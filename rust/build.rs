@@ -24,6 +24,7 @@ fn main() {
     // Tell Cargo that if the given file changes, to rerun this build script.
     println!("cargo:rerun-if-changed=src/lib.rs");
     println!("cargo:rerun-if-changed=src/hmac.rs");
+    println!("cargo:rerun-if-changed=src/rsa.rs");
 
     if std::env::var("CARGO_CFG_CLIPPY").is_err() {
         // Only run cbindgen if not running cargo clippy
