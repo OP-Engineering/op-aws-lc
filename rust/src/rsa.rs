@@ -83,6 +83,102 @@ pub unsafe extern "C" fn generate_rsa_private_key(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn rsa_private_key_to_DER_PKCS8_bytes(
+    private_key_handle: *mut c_void,
+    output: *mut u8,
+    output_len: *mut usize,
+    err: *mut *const c_char,
+) -> RsaError {
+    if private_key_handle.is_null() {
+        return RsaError::InvalidKey;
+    }
+
+    let private_key =
+        unsafe { Box::from_raw(private_key_handle as *mut rsa::PrivateDecryptingKey) };
+    let private_key_pkcs8 = private_key.as_der().unwrap();
+    let private_key_bytes = private_key_pkcs8.as_ref();
+    // Memory limit of the upper allocated buffer
+    if private_key_bytes.len() > 1024 * 1024 {
+        return RsaError::InvalidOutput;
+    }
+    unsafe {
+        write_to_c_buffer(private_key_bytes, output, output_len);
+    }
+    std::mem::forget(private_key);
+
+    RsaError::Ok
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn rsa_private_key_from_DER_PKCS8_bytes(
+    private_key: *const u8,
+    private_key_len: usize,
+    private_key_handle: *mut *mut c_void,
+    err: *mut *const c_char,
+) -> RsaError {
+    if private_key.is_null() || private_key_len == 0 {
+        return RsaError::InvalidInput;
+    }
+
+    let private_key = std::slice::from_raw_parts(private_key, private_key_len);
+    match PrivateDecryptingKey::from_pkcs8(private_key) {
+        Ok(key) => {
+            *private_key_handle = Box::into_raw(Box::new(key)) as *mut c_void;
+            RsaError::Ok
+        }
+        Err(_) => RsaError::CryptoError,
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn rsa_public_key_to_DER_X509_bytes(
+    public_key_handle: *mut c_void,
+    output: *mut u8,
+    output_len: *mut usize,
+    err: *mut *const c_char,
+) -> RsaError {
+    if public_key_handle.is_null() {
+        return RsaError::InvalidKey;
+    }
+
+    let public_key = unsafe { Box::from_raw(public_key_handle as *mut rsa::PublicEncryptingKey) };
+    let public_key_der = public_key.as_der().unwrap();
+    let public_key_bytes = public_key_der.as_ref();
+
+    if public_key_bytes.len() > 1024 * 1024 {
+        return RsaError::InvalidOutput;
+    }
+
+    unsafe {
+        write_to_c_buffer(public_key_bytes, output, output_len);
+    }
+    std::mem::forget(public_key);
+
+    RsaError::Ok
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn rsa_public_key_from_DER_X509_bytes(
+    public_key: *const u8,
+    public_key_len: usize,
+    public_key_handle: *mut *mut c_void,
+    err: *mut *const c_char,
+) -> RsaError {
+    if public_key.is_null() || public_key_len == 0 {
+        return RsaError::InvalidInput;
+    }
+
+    let public_key = std::slice::from_raw_parts(public_key, public_key_len);
+    match PublicEncryptingKey::from_der(public_key) {
+        Ok(key) => {
+            *public_key_handle = Box::into_raw(Box::new(key)) as *mut c_void;
+            RsaError::Ok
+        }
+        Err(_) => RsaError::CryptoError,
+    }
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn generate_rsa_public_key(
     private_key_handle: *mut c_void,
     public_key_handle: *mut *mut c_void,
