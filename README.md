@@ -62,6 +62,47 @@ if (!verified) {
 }
 ```
 
+### Rsa
+
+Encryption/Decryption of plaintext with Rsa works. As well as importing/exporting of the private/public key into DER PKCS8/X509 formats.
+
+````ts
+import {rsa, RsaKeySize, RsaOaepEncryptionAlgorithm } from "@op-engineering/op-aws-lc";
+
+const privateKey = rsa.Key.generatePrivateKey(RsaKeySize.Rsa2048);
+const privateKeyBytes = rsa.Key.privateKeyToDERPKCS8Bytes(privateKey);
+
+expect(privateKeyBytes instanceof ArrayBuffer).toBe(true);
+
+const privateKeyFromBytes =
+  rsa.Key.privateKeyFromDERPKCS8Bytes(privateKeyBytes);
+
+const publicKey = rsa.Key.generatePublicKey(privateKeyFromBytes);
+const publicKeyBytes = rsa.Key.publicKeyToDERX509Bytes(publicKey);
+
+expect(publicKeyBytes instanceof ArrayBuffer).toBe(true);
+
+const publicKeyFromBytes =
+  rsa.Key.publicKeyFromDERX509Bytes(publicKeyBytes);
+
+const ciphertext = rsa.oaepEncrypt({
+  algorithm: RsaOaepEncryptionAlgorithm.Sha512mgf1Sha512,
+  publicKey: publicKeyFromBytes,
+  plaintext: 'Hello world',
+});
+expect(!!ciphertext).toBe(true);
+expect(ciphertext instanceof ArrayBuffer).toBe(true);
+
+const decrypted = rsa.oaepDecrypt({
+  algorithm: RsaOaepEncryptionAlgorithm.Sha512mgf1Sha512,
+  privateKey,
+  ciphertext,
+});
+
+expect(decrypted).toBe('Hello world');
+```
+
+
 ## Get in touch
 
 The rest of the algorithms inside aws-lc still need to be bridged. Get in contact by [joining our Discord](https://discord.gg/W9XmqCQCKP) or write to ospfranco@gmail.com for further assistance.
@@ -71,3 +112,4 @@ You can see the [list of available funcitonality in the Rust crate here](https:/
 ## License
 
 MIT
+````

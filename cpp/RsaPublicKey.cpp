@@ -14,4 +14,10 @@ RsaPublicKey::RsaPublicKey(void *private_key) {
   }
 }
 
+RsaPublicKey RsaPublicKey::fromRawPointer(void *rsa_public_key_raw_pointer) {
+  RsaPublicKey rsa_public_key;
+  rsa_public_key.rsa_public_key = rsa_public_key_raw_pointer;
+  return rsa_public_key;
+}
+
 } // namespace opawslc
