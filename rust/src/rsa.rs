@@ -265,7 +265,6 @@ pub unsafe extern "C" fn rsa_oaep_decrypt(
     output_len: *mut usize,
     err: *mut *const c_char,
 ) -> RsaError {
-    log::error!("Starting decryption!");
     if private_key_handle.is_null() {
         return RsaError::InvalidKey;
     }
@@ -286,8 +285,6 @@ pub unsafe extern "C" fn rsa_oaep_decrypt(
     let plaintext = oaep_private_key
         .decrypt(algorithm.into(), ciphertext, &mut plaintext, None)
         .unwrap();
-
-    log::error!("Plain text success! QUACK");
 
     unsafe {
         write_to_c_buffer(plaintext, output, output_len);
