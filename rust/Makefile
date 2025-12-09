@@ -1,5 +1,7 @@
 ARCHS_IOS = aarch64-apple-ios aarch64-apple-ios-sim
 ARCHS_ANDROID = aarch64-linux-android armv7-linux-androideabi x86_64-linux-android i686-linux-android
+IOS_LIB_FILE = libaws_lc.dylib
+IOS_FINAL_LIB_FILE = libaws_lc
 LIB_FILE = libaws_lc.so
 XCFRAMEWORK = libaws_lc.xcframework
 XCFRAMEWORK_DEBUG = libaws_lc-debug.xcframework
@@ -19,43 +21,65 @@ fix:
 nuke:
 	rm -rf ./target
 
-ios: clean ios-build package-xcframework package-dylibs copy-ios notify
+ios: clean ios-build package-dylibs copy-ios notify
 
 clean:
 	rm -rf generated/$(XCFRAMEWORK)
 	rm -rf ../ios/$(XCFRAMEWORK)
 
 package-dylibs:
+	mkdir -p generated
 # Delete old files
-	rm -rf generated/libaws_lc_fips*.xcframework
-# Reset the xcframework folders from the templates
-	cp -r templates/libaws_lc_fips.xcframework generated
-	cp -r templates/libaws_lc_fips_rust_wrapper.xcframework generated
-# Extract the dylibs from the target folder
+	rm -rf generated/libaws_lc*.xcframework
+	
+# Reset the .xcframeworks from the templates
+	cp -r templates/libaws_lc*.xcframework generated
+
+# Pack device dylibs
+	cp target/aarch64-apple-ios/release/$(IOS_LIB_FILE) generated/$(IOS_FINAL_LIB_FILE)
 	cp target/aarch64-apple-ios/release/build/aws-lc-fips-sys-*/out/build/artifacts/libaws_lc_fips_* generated/
-	mv -f generated/libaws_lc_fips_*_crypto.dylib generated/libaws_lc_fips
-	mv -f generated/libaws_lc_fips_*_rust_wrapper.dylib generated/libaws_lc_fips_rust_wrapper
-# Put the iOS device versions in the xcframework
-	cp generated/libaws_lc_fips generated/libaws_lc_fips.xcframework/ios-arm64/libaws_lc_fips.framework
-	install_name_tool -id @rpath/libaws_lc_fips.framework/libaws_lc_fips generated/libaws_lc_fips.xcframework/ios-arm64/libaws_lc_fips.framework/libaws_lc_fips
-	cp generated/libaws_lc_fips_rust_wrapper generated/libaws_lc_fips_rust_wrapper.xcframework/ios-arm64/libaws_lc_fips_rust_wrapper.framework
-	install_name_tool -id @rpath/libaws_lc_fips_rust_wrapper.framework/libaws_lc_fips_rust_wrapper generated/libaws_lc_fips_rust_wrapper.xcframework/ios-arm64/libaws_lc_fips_rust_wrapper.framework/libaws_lc_fips_rust_wrapper
-# Do the same for the iOS simulator dylibs, extract the dylibs from the target folder
+	mv -f generated/libaws_lc_fips_0_13_10_crypto.dylib generated/libaws_lc_crypto
+	mv -f generated/libaws_lc_fips_0_13_10_rust_wrapper.dylib generated/libaws_lc_rust_wrapper
+
+	cp generated/libaws_lc_crypto generated/libaws_lc_crypto.xcframework/ios-arm64/libaws_lc_crypto.framework/
+	install_name_tool -id @rpath/libaws_lc_crypto.framework/libaws_lc_crypto generated/libaws_lc_crypto.xcframework/ios-arm64/libaws_lc_crypto.framework/libaws_lc_crypto
+
+	cp generated/libaws_lc_rust_wrapper generated/libaws_lc_rust_wrapper.xcframework/ios-arm64/libaws_lc_rust_wrapper.framework
+	install_name_tool -id @rpath/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper generated/libaws_lc_rust_wrapper.xcframework/ios-arm64/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper
+	install_name_tool -change @rpath/libaws_lc_fips_0_13_10_crypto.dylib @rpath/libaws_lc_crypto.framework/libaws_lc_crypto generated/libaws_lc_rust_wrapper.xcframework/ios-arm64/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper
+
+	cp generated/$(IOS_FINAL_LIB_FILE) generated/libaws_lc.xcframework/ios-arm64/libaws_lc.framework/
+	install_name_tool -id @rpath/libaws_lc.framework/$(IOS_FINAL_LIB_FILE) generated/libaws_lc.xcframework/ios-arm64/libaws_lc.framework/$(IOS_FINAL_LIB_FILE)
+	install_name_tool -change @rpath/libaws_lc_fips_0_13_10_crypto.dylib @rpath/libaws_lc_crypto.framework/libaws_lc_crypto generated/libaws_lc.xcframework/ios-arm64/libaws_lc.framework/$(IOS_FINAL_LIB_FILE)
+	install_name_tool -change @rpath/libaws_lc_fips_0_13_10_rust_wrapper.dylib @rpath/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper generated/libaws_lc.xcframework/ios-arm64/libaws_lc.framework/$(IOS_FINAL_LIB_FILE)
+	
+	mkdir -p generated/libaws_lc.xcframework/ios-arm64/libaws_lc.framework/Headers
+	cp generated/include/libaws_lc.h generated/libaws_lc.xcframework/ios-arm64/libaws_lc.framework/Headers/
+
+# Pack simulator dylibs
+	cp target/aarch64-apple-ios-sim/release/$(IOS_LIB_FILE) generated/$(IOS_FINAL_LIB_FILE)
 	cp target/aarch64-apple-ios-sim/release/build/aws-lc-fips-sys-*/out/build/artifacts/libaws_lc_fips_* generated/
-	mv -f generated/libaws_lc_fips_*_crypto.dylib generated/libaws_lc_fips
-	mv -f generated/libaws_lc_fips_*_rust_wrapper.dylib generated/libaws_lc_fips_rust_wrapper
-# Put the iOS simulator versions in the xcframework
-	cp generated/libaws_lc_fips generated/libaws_lc_fips.xcframework/ios-arm64-simulator/libaws_lc_fips.framework
-	install_name_tool -id @rpath/libaws_lc_fips.framework/libaws_lc_fips generated/libaws_lc_fips.xcframework/ios-arm64-simulator/libaws_lc_fips.framework/libaws_lc_fips
-	cp generated/libaws_lc_fips_rust_wrapper generated/libaws_lc_fips_rust_wrapper.xcframework/ios-arm64-simulator/libaws_lc_fips_rust_wrapper.framework
-	install_name_tool -id @rpath/libaws_lc_fips_rust_wrapper.framework/libaws_lc_fips_rust_wrapper generated/libaws_lc_fips_rust_wrapper.xcframework/ios-arm64-simulator/libaws_lc_fips_rust_wrapper.framework/libaws_lc_fips_rust_wrapper
+	mv -f generated/libaws_lc_fips_0_13_10_crypto.dylib generated/libaws_lc_crypto
+	mv -f generated/libaws_lc_fips_0_13_10_rust_wrapper.dylib generated/libaws_lc_rust_wrapper
+
+	cp generated/libaws_lc_crypto generated/libaws_lc_crypto.xcframework/ios-arm64-simulator/libaws_lc_crypto.framework/
+	install_name_tool -id @rpath/libaws_lc_crypto.framework/libaws_lc_crypto generated/libaws_lc_crypto.xcframework/ios-arm64-simulator/libaws_lc_crypto.framework/libaws_lc_crypto
+
+	cp generated/libaws_lc_rust_wrapper generated/libaws_lc_rust_wrapper.xcframework/ios-arm64-simulator/libaws_lc_rust_wrapper.framework
+	install_name_tool -id @rpath/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper generated/libaws_lc_rust_wrapper.xcframework/ios-arm64-simulator/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper
+	install_name_tool -change @rpath/libaws_lc_fips_0_13_10_crypto.dylib @rpath/libaws_lc_crypto.framework/libaws_lc_crypto generated/libaws_lc_rust_wrapper.xcframework/ios-arm64-simulator/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper
+
+	cp generated/$(IOS_FINAL_LIB_FILE) generated/libaws_lc.xcframework/ios-arm64-simulator/libaws_lc.framework/
+	install_name_tool -id @rpath/libaws_lc.framework/$(IOS_FINAL_LIB_FILE) generated/libaws_lc.xcframework/ios-arm64-simulator/libaws_lc.framework/$(IOS_FINAL_LIB_FILE)
+	install_name_tool -change @rpath/libaws_lc_fips_0_13_10_crypto.dylib @rpath/libaws_lc_crypto.framework/libaws_lc_crypto generated/libaws_lc.xcframework/ios-arm64-simulator/libaws_lc.framework/$(IOS_FINAL_LIB_FILE)
+	install_name_tool -change @rpath/libaws_lc_fips_0_13_10_rust_wrapper.dylib @rpath/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper generated/libaws_lc.xcframework/ios-arm64-simulator/libaws_lc.framework/$(IOS_FINAL_LIB_FILE)
+	
+	mkdir -p generated/libaws_lc.xcframework/ios-arm64-simulator/libaws_lc.framework/Headers
+	cp generated/include/libaws_lc.h generated/libaws_lc.xcframework/ios-arm64-simulator/libaws_lc.framework/Headers/
 
 copy-ios:
 	cp -rf generated/*.xcframework ../ios
 	cd ../example/ios && yarn pods
-
-package-xcframework:
-	xcodebuild -create-xcframework -library target/aarch64-apple-ios/release/$(LIB_FILE) -headers generated/include -library target/aarch64-apple-ios-sim/release/$(LIB_FILE) -headers generated/include -output generated/$(XCFRAMEWORK)
 
 ios-build:
 	cargo build --release --target aarch64-apple-ios 

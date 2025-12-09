@@ -1,6 +1,4 @@
 [tools]
 bun = "latest"
 "cargo:cargo-ndk" = "latest"
-cmake = "3"
-java = "17"
 rust = "stable"
