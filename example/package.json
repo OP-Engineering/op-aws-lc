@@ -10,8 +10,10 @@
     "build:ios": "react-native build-ios --mode Debug"
   },
   "dependencies": {
+    "@op-engineering/op-test": "^0.2.5",
     "react": "19.1.0",
-    "react-native": "0.81.1"
+    "react-native": "0.81.1",
+    "react-native-safe-area-context": "^5.6.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

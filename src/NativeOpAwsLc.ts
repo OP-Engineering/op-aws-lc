@@ -1,7 +1,7 @@
-import { TurboModuleRegistry, type TurboModule } from 'react-native';
+import { TurboModuleRegistry, type TurboModule } from "react-native";
 
 export interface Spec extends TurboModule {
-  multiply(a: number, b: number): number;
+  install(): boolean;
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>('OpAwsLc');
+export default TurboModuleRegistry.getEnforcing<Spec>("OpAwsLc");

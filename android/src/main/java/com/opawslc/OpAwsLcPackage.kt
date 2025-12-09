@@ -22,10 +22,10 @@ class OpAwsLcPackage : BaseReactPackage() {
       moduleInfos[OpAwsLcModule.NAME] = ReactModuleInfo(
         OpAwsLcModule.NAME,
         OpAwsLcModule.NAME,
-        false,  // canOverrideExistingModule
-        false,  // needsEagerInit
-        false,  // isCxxModule
-        true // isTurboModule
+        canOverrideExistingModule = false,  // canOverrideExistingModule
+        needsEagerInit = false,  // needsEagerInit
+        isCxxModule = true,  // isCxxModule
+        isTurboModule = true // isTurboModule
       )
       moduleInfos
     }
