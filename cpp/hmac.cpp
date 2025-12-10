@@ -110,7 +110,7 @@ void add_hmac_module(jsi::Runtime &rt, jsi::Object &root_module) {
           }
           return 0;
         },
-        [output_buffer, output_len](jsi::Runtime &rt, std::any prev) {
+        [output_buffer, output_len](jsi::Runtime &rt, const std::any&) {
           jsi::Function array_buffer_ctor =
               rt.global().getPropertyAsFunction(rt, "ArrayBuffer");
           jsi::Object o =
@@ -146,7 +146,7 @@ void add_hmac_module(jsi::Runtime &rt, jsi::Object &root_module) {
 
           return true;
         },
-        [](jsi::Runtime &rt, std::any prev) {
+        [](jsi::Runtime &, std::any prev) {
           return std::any_cast<bool>(prev);
         });
   });
