@@ -43,15 +43,18 @@ package-dylibs:
 
 	cp generated/libaws_lc_crypto generated/libaws_lc_crypto.xcframework/ios-arm64/libaws_lc_crypto.framework/
 	install_name_tool -id @rpath/libaws_lc_crypto.framework/libaws_lc_crypto generated/libaws_lc_crypto.xcframework/ios-arm64/libaws_lc_crypto.framework/libaws_lc_crypto
+	codesign -f -s - --identifier com.ospfranco.libaws-lc-crypto generated/libaws_lc_crypto.xcframework/ios-arm64/libaws_lc_crypto.framework/libaws_lc_crypto
 
 	cp generated/libaws_lc_rust_wrapper generated/libaws_lc_rust_wrapper.xcframework/ios-arm64/libaws_lc_rust_wrapper.framework
 	install_name_tool -id @rpath/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper generated/libaws_lc_rust_wrapper.xcframework/ios-arm64/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper
 	install_name_tool -change @rpath/libaws_lc_fips_0_13_10_crypto.dylib @rpath/libaws_lc_crypto.framework/libaws_lc_crypto generated/libaws_lc_rust_wrapper.xcframework/ios-arm64/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper
+	codesign -f -s - --identifier com.ospfranco.libaws-lc-rust-wrapper generated/libaws_lc_rust_wrapper.xcframework/ios-arm64/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper
 
 	cp generated/$(IOS_FINAL_LIB_FILE) generated/libaws_lc.xcframework/ios-arm64/libaws_lc.framework/
 	install_name_tool -id @rpath/libaws_lc.framework/$(IOS_FINAL_LIB_FILE) generated/libaws_lc.xcframework/ios-arm64/libaws_lc.framework/$(IOS_FINAL_LIB_FILE)
 	install_name_tool -change @rpath/libaws_lc_fips_0_13_10_crypto.dylib @rpath/libaws_lc_crypto.framework/libaws_lc_crypto generated/libaws_lc.xcframework/ios-arm64/libaws_lc.framework/$(IOS_FINAL_LIB_FILE)
 	install_name_tool -change @rpath/libaws_lc_fips_0_13_10_rust_wrapper.dylib @rpath/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper generated/libaws_lc.xcframework/ios-arm64/libaws_lc.framework/$(IOS_FINAL_LIB_FILE)
+	codesign -f -s - --identifier com.ospfranco.libaws-lc generated/libaws_lc.xcframework/ios-arm64/libaws_lc.framework/$(IOS_FINAL_LIB_FILE)
 	
 	mkdir -p generated/libaws_lc.xcframework/ios-arm64/libaws_lc.framework/Headers
 	cp generated/include/libaws_lc.h generated/libaws_lc.xcframework/ios-arm64/libaws_lc.framework/Headers/
@@ -64,15 +67,18 @@ package-dylibs:
 
 	cp generated/libaws_lc_crypto generated/libaws_lc_crypto.xcframework/ios-arm64-simulator/libaws_lc_crypto.framework/
 	install_name_tool -id @rpath/libaws_lc_crypto.framework/libaws_lc_crypto generated/libaws_lc_crypto.xcframework/ios-arm64-simulator/libaws_lc_crypto.framework/libaws_lc_crypto
+	codesign -f -s - --identifier com.ospfranco.libaws-lc-crypto generated/libaws_lc_crypto.xcframework/ios-arm64-simulator/libaws_lc_crypto.framework/libaws_lc_crypto
 
 	cp generated/libaws_lc_rust_wrapper generated/libaws_lc_rust_wrapper.xcframework/ios-arm64-simulator/libaws_lc_rust_wrapper.framework
 	install_name_tool -id @rpath/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper generated/libaws_lc_rust_wrapper.xcframework/ios-arm64-simulator/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper
 	install_name_tool -change @rpath/libaws_lc_fips_0_13_10_crypto.dylib @rpath/libaws_lc_crypto.framework/libaws_lc_crypto generated/libaws_lc_rust_wrapper.xcframework/ios-arm64-simulator/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper
+	codesign -f -s - --identifier com.ospfranco.libaws-lc-rust-wrapper generated/libaws_lc_rust_wrapper.xcframework/ios-arm64-simulator/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper
 
 	cp generated/$(IOS_FINAL_LIB_FILE) generated/libaws_lc.xcframework/ios-arm64-simulator/libaws_lc.framework/
 	install_name_tool -id @rpath/libaws_lc.framework/$(IOS_FINAL_LIB_FILE) generated/libaws_lc.xcframework/ios-arm64-simulator/libaws_lc.framework/$(IOS_FINAL_LIB_FILE)
 	install_name_tool -change @rpath/libaws_lc_fips_0_13_10_crypto.dylib @rpath/libaws_lc_crypto.framework/libaws_lc_crypto generated/libaws_lc.xcframework/ios-arm64-simulator/libaws_lc.framework/$(IOS_FINAL_LIB_FILE)
 	install_name_tool -change @rpath/libaws_lc_fips_0_13_10_rust_wrapper.dylib @rpath/libaws_lc_rust_wrapper.framework/libaws_lc_rust_wrapper generated/libaws_lc.xcframework/ios-arm64-simulator/libaws_lc.framework/$(IOS_FINAL_LIB_FILE)
+	codesign -f -s - --identifier com.ospfranco.libaws-lc generated/libaws_lc.xcframework/ios-arm64-simulator/libaws_lc.framework/$(IOS_FINAL_LIB_FILE)
 	
 	mkdir -p generated/libaws_lc.xcframework/ios-arm64-simulator/libaws_lc.framework/Headers
 	cp generated/include/libaws_lc.h generated/libaws_lc.xcframework/ios-arm64-simulator/libaws_lc.framework/Headers/
