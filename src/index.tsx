@@ -57,11 +57,11 @@ type Proxy = {
   };
 };
 
-const errorMsg = OpAwsLc.install();
+const installed = OpAwsLc.install();
 
-// eslint-disable-next-line eqeqeq
-if (errorMsg != undefined) {
-  console.error(`OpAwsLc could not be installed: ${errorMsg}`);
+// eslint-disable-next-line
+if (!installed) {
+  console.error(`OpAwsLc could not be installed! Check native logs!`);
 }
 
 const proxy = global.__OPAwsLcProxy as Proxy;

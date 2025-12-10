@@ -207,9 +207,15 @@ pub unsafe extern "C" fn generate_rsa_oaep_key(
         return RsaError::InvalidKey;
     }
 
-    let public_key = unsafe { Box::from_raw(public_key_handle as *mut rsa::PublicEncryptingKey) };
-    // TODO remove unwrap
-    let oaep_public_key = OaepPublicEncryptingKey::new(*public_key).unwrap();
+    let public_key = unsafe { &*(public_key_handle as *mut rsa::PublicEncryptingKey) };
+
+    let oaep_public_key = match OaepPublicEncryptingKey::new(public_key.clone()) {
+        Ok(key) => key,
+        Err(e) => {
+            set_error(err, &format!("Failed to create OAEP key: {:?}", e));
+            return RsaError::CryptoError;
+        }
+    };
     let ciphertext_size = oaep_public_key.ciphertext_size();
     unsafe {
         *output_len = ciphertext_size;
@@ -240,16 +246,31 @@ pub unsafe extern "C" fn encrypt_with_rsa_oaep_key(
     let plaintext = std::slice::from_raw_parts(plaintext, plaintext_len);
 
     let oaep_public_key =
-        unsafe { Box::from_raw(oaep_public_key_handle as *mut rsa::OaepPublicEncryptingKey) };
+        unsafe { &*(oaep_public_key_handle as *mut rsa::OaepPublicEncryptingKey) };
 
-    let mut ciphertext = vec![0u8; oaep_public_key.ciphertext_size()];
+    let mut ciphertext_buffer = vec![0u8; oaep_public_key.ciphertext_size()];
 
-    let ciphertext = oaep_public_key
-        .encrypt(algorithm.into(), plaintext, &mut ciphertext, None)
-        .unwrap();
+    let ciphertext_result =
+        match oaep_public_key.encrypt(algorithm.into(), plaintext, &mut ciphertext_buffer, None) {
+            Ok(result) => result,
+            Err(e) => {
+                set_error(
+                    err,
+                    &format!(
+                    "RSA OAEP encryption failed: {:?}. Plaintext may be too large for key size.",
+                    e
+                ),
+                );
+                log::error!(
+                    "RSA OAEP encryption failed: {:?}. Plaintext may be too large for key size.",
+                    e
+                );
+                return RsaError::CryptoError;
+            }
+        };
 
     unsafe {
-        write_to_c_buffer(ciphertext, output, output_len);
+        write_to_c_buffer(ciphertext_result, output, output_len);
     }
 
     RsaError::Ok
@@ -277,14 +298,27 @@ pub unsafe extern "C" fn rsa_oaep_decrypt(
 
     let private_key = unsafe { &*(private_key_handle as *mut rsa::PrivateDecryptingKey) };
 
-    // TODO unwrap
-    let oaep_private_key = OaepPrivateDecryptingKey::new(private_key.clone()).unwrap();
+    let oaep_private_key = match OaepPrivateDecryptingKey::new(private_key.clone()) {
+        Ok(key) => key,
+        Err(e) => {
+            set_error(
+                err,
+                &format!("Failed to create OAEP decryption key: {:?}", e),
+            );
+            return RsaError::CryptoError;
+        }
+    };
 
-    let mut plaintext = vec![0u8; oaep_private_key.min_output_size()];
+    let mut plaintext_buffer = vec![0u8; oaep_private_key.min_output_size()];
 
-    let plaintext = oaep_private_key
-        .decrypt(algorithm.into(), ciphertext, &mut plaintext, None)
-        .unwrap();
+    let plaintext =
+        match oaep_private_key.decrypt(algorithm.into(), ciphertext, &mut plaintext_buffer, None) {
+            Ok(result) => result,
+            Err(e) => {
+                set_error(err, &format!("RSA OAEP decryption failed: {:?}", e));
+                return RsaError::CryptoError;
+            }
+        };
 
     unsafe {
         write_to_c_buffer(plaintext, output, output_len);

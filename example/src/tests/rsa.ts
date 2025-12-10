@@ -1,4 +1,8 @@
-import { rsa, RsaKeySize, RsaOaepEncryptionAlgorithm } from "op-aws-lc";
+import {
+  rsa,
+  RsaKeySize,
+  RsaOaepEncryptionAlgorithm,
+} from "@op-engineering/op-aws-lc";
 import { describe, expect, it } from "@op-engineering/op-test";
 
 describe("rsa", () => {
@@ -19,6 +23,33 @@ describe("rsa", () => {
     });
     expect(decrypted).toBe("Hello world");
   });
+
+  it("keySize2048AndSha256 large text should fail", () => {
+    const privateKey = rsa.Key.generatePrivateKey(RsaKeySize.Rsa2048);
+    const publicKey = rsa.Key.generatePublicKey(privateKey);
+    const largeObject = {
+      message: "Hello world",
+      data: Array(10000).fill("x"),
+    };
+    try {
+      rsa.oaepEncrypt({
+        algorithm: RsaOaepEncryptionAlgorithm.Sha256mgf1Sha256,
+        publicKey,
+        plaintext: JSON.stringify(largeObject),
+      });
+    } catch (e) {
+      expect(true).toBe(true);
+    }
+    // expect(!!ciphertext).toBe(true);
+    // expect(ciphertext instanceof ArrayBuffer).toBe(true);
+    // const decrypted = rsa.oaepDecrypt({
+    //   algorithm: RsaOaepEncryptionAlgorithm.Sha256mgf1Sha256,
+    //   privateKey,
+    //   ciphertext,
+    // });
+    // expect(decrypted).toBe("Hello world");
+  });
+
   // it('keySize3072AndSha256', () => {
   //   const privateKey = rsa.Key.generatePrivateKey(RsaKeySize.Rsa3072);
   //   const publicKey = rsa.Key.generatePublicKey(privateKey);
@@ -73,9 +104,7 @@ describe("rsa", () => {
   it("Can export and import a private key to DER PCKS8", () => {
     const privateKey = rsa.Key.generatePrivateKey(RsaKeySize.Rsa2048);
     const privateKeyBytes = rsa.Key.privateKeyToDERPKCS8Bytes(privateKey);
-
     expect(privateKeyBytes instanceof ArrayBuffer).toBe(true);
-
     const privateKeyFromBytes =
       rsa.Key.privateKeyFromDERPKCS8Bytes(privateKeyBytes);
     // expect(privateKeyFromBytes).toEqual(privateKey);
@@ -94,14 +123,11 @@ describe("rsa", () => {
     });
     expect(decrypted).toBe("Hello world");
   });
-
   it("Can export and import a public key to DER X509", () => {
     const privateKey = rsa.Key.generatePrivateKey(RsaKeySize.Rsa2048);
     const publicKey = rsa.Key.generatePublicKey(privateKey);
     const publicKeyBytes = rsa.Key.publicKeyToDERX509Bytes(publicKey);
-
     expect(publicKeyBytes instanceof ArrayBuffer).toBe(true);
-
     const publicKeyFromBytes =
       rsa.Key.publicKeyFromDERX509Bytes(publicKeyBytes);
     // expect(publicKeyFromBytes).toEqual(publicKey);

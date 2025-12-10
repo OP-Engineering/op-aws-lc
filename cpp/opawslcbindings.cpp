@@ -1,4 +1,4 @@
-#include "bindings.hpp"
+#include "opawslcbindings.hpp"
 #include "hmac.hpp"
 #include "libaws_lc.h"
 #include "macros.hpp"
@@ -14,6 +14,8 @@ namespace opawslc {
 namespace jsi = facebook::jsi;
 namespace react = facebook::react;
 
+std::shared_ptr<react::CallInvoker> invoker;
+
 // React native will try to clean the module on JS context invalidation
 // (CodePush/Hot Reload) The clearState function is called
 // void invalidate() {
@@ -26,11 +28,12 @@ namespace react = facebook::react;
 // }
 
 void install(jsi::Runtime &rt,
-             const std::shared_ptr<react::CallInvoker> &invoker) {
+             const std::shared_ptr<react::CallInvoker> &_invoker) {
+  opawslc::invoker = _invoker;
   aws_lc::init_lib();
   jsi::Object proxy = jsi::Object(rt);
-  add_hmac_module(rt, invoker, proxy);
-  add_rsa_module(rt, invoker, proxy);
+  add_hmac_module(rt, proxy);
+  add_rsa_module(rt, proxy);
   rt.global().setProperty(rt, "__OPAwsLcProxy", std::move(proxy));
 }
 

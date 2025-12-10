@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "op-aws-lc": ["./src/index"]
+      "@op-engineering/op-aws-lc": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

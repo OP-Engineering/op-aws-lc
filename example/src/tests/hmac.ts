@@ -1,4 +1,4 @@
-import { hmac, HmacAlgorithm } from "op-aws-lc";
+import { hmac, HmacAlgorithm } from "@op-engineering/op-aws-lc";
 import { describe, expect, it } from "@op-engineering/op-test";
 
 describe("hmac", () => {
@@ -20,11 +20,14 @@ describe("hmac", () => {
     expect(result).toBe(true);
   });
 
-  // it("hmac can't verify invalid signature", () => {
-  //   const key = generateHmacKey(HmacAlgorithm.SHA256);
-  //   const result = key.verify('hello', 'invalid');
-  //   expect(result).toBe(false);
-  // });
+  it("hmac can't verify invalid signature", () => {
+    const key = hmac.Key.generate(HmacAlgorithm.SHA256);
+    const invalidSignature = new Uint8Array(32).map(() =>
+      Math.floor(Math.random() * 256)
+    );
+    const result = hmac.verify(key, "hello", invalidSignature.buffer);
+    expect(result).toBe(false);
+  });
 
   it("hmac can't verify invalid data", () => {
     const key = hmac.Key.generate(HmacAlgorithm.SHA256);

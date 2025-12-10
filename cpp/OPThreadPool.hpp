@@ -12,29 +12,32 @@ namespace opawslc {
 
 class ThreadPool {
 public:
-  static ThreadPool &getInstance() {
-    static ThreadPool instance; // Initialized once, thread-safe since C++11
-    return instance;
-  }
-
+  ThreadPool();
+  ~ThreadPool();
   void queueWork(const std::function<void(void)> &task);
   void waitFinished();
   void restartPool();
 
 private:
-  ThreadPool();  // Private constructor
-  ~ThreadPool(); // Private destructor to prevent external deletion
-
-  ThreadPool(const ThreadPool &) = delete;
-  ThreadPool &operator=(const ThreadPool &) = delete;
-
   unsigned int busy{};
+  // This condition variable is used for the threads to wait until there is
+  // work to do
   std::condition_variable_any workQueueConditionVariable;
+
+  // We store the threads in a vector, so we can later stop them gracefully
   std::vector<std::thread> threads;
+
+  // Mutex to protect workQueue
   std::mutex workQueueMutex;
+
+  // Queue of requests waiting to be processed
   std::queue<std::function<void(void)>> workQueue;
+
+  // This will be set to true when the thread pool is shutting down. This
+  // tells the threads to stop looping and finish
   bool done;
 
+  // Function used by the threads to grab work from the queue
   void doWork();
 };
 

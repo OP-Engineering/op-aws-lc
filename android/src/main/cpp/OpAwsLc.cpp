@@ -1,6 +1,5 @@
-#include "../cpp/bindings.hpp"
 #include "OpAwsLc.hpp"
-
+#include "../cpp/opawslcbindings.hpp"
 #include <exception>
 
 namespace opawslc {

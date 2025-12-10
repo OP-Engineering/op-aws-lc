@@ -1,5 +1,5 @@
 #import "OpAwsLc.h"
-#import "bindings.hpp"
+#import "opawslcbindings.hpp"
 #import <ReactCommon/CallInvoker.h>
 #import <ReactCommon/RCTTurboModuleWithJSIBindings.h>
 

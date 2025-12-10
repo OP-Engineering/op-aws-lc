@@ -29,5 +29,5 @@ pub extern "C" fn init_lib() {
         );
     }
 
-    log::error!("OP-AWS-LC Initialized");
+    log::info!("OP-AWS-LC Rust Bindings Initialized");
 }

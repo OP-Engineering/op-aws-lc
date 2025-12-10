@@ -39,13 +39,11 @@ rsa_oaep_encryption_algorithm_from_double(double value) {
   return static_cast<aws_lc::RsaOaepEncryptionAlgorithm>(intValue);
 }
 
-void add_rsa_module(jsi::Runtime &rt,
-                    std::shared_ptr<facebook::react::CallInvoker> invoker,
-                    jsi::Object &root_module) {
+void add_rsa_module(jsi::Runtime &rt, jsi::Object &root_module) {
   auto rsa_module = jsi::Object(rt);
   auto key_module = jsi::Object(rt);
 
-  auto generate_rsa_private_key = HOST_STATIC_FN("generate_rsa_private_key") {
+  auto generate_rsa_private_key = HFN0 {
     aws_lc::RsaKeySize key_size = rsa_key_size_from_double(args[0].asNumber());
     std::shared_ptr<RsaPrivateKey> key =
         std::make_shared<RsaPrivateKey>(key_size);
@@ -60,7 +58,7 @@ void add_rsa_module(jsi::Runtime &rt,
   key_module.setProperty(rt, "generatePrivateKey",
                          std::move(generate_rsa_private_key));
 
-  auto generate_rsa_public_key = HOST_STATIC_FN("generate_rsa_public_key") {
+  auto generate_rsa_public_key = HFN0 {
     std::shared_ptr<RsaPrivateKey> private_key =
         args[0].asObject(rt).getNativeState<RsaPrivateKey>(rt);
     std::shared_ptr<RsaPublicKey> key =
@@ -76,15 +74,14 @@ void add_rsa_module(jsi::Runtime &rt,
   key_module.setProperty(rt, "generatePublicKey",
                          std::move(generate_rsa_public_key));
 
-  auto rsa_public_to_DER_X509_bytes =
-      HOST_STATIC_FN("rsa_public_to_DER_X509_bytes") {
+  auto rsa_public_to_DER_X509_bytes = HFN0 {
     std::shared_ptr<RsaPublicKey> public_key =
         args[0].asObject(rt).getNativeState<RsaPublicKey>(rt);
     const char *err;
     auto *output =
         new uint8_t[1024 * 1024]; // Reserve a 1MB buffer, because we do not
                                   // know the size of the output before hand
-    size_t output_len;
+    size_t output_len = 0;
 
     aws_lc::rsa_public_key_to_DER_X509_bytes(public_key.get()->rsa_public_key,
                                              output, &output_len, &err);
@@ -93,7 +90,8 @@ void add_rsa_module(jsi::Runtime &rt,
 
         rt.global().getPropertyAsFunction(rt, "ArrayBuffer");
     jsi::Object o =
-        array_buffer_ctor.callAsConstructor(rt, (int)output_len).getObject(rt);
+        array_buffer_ctor.callAsConstructor(rt, static_cast<int>(output_len))
+            .getObject(rt);
     jsi::ArrayBuffer buf = o.getArrayBuffer(rt);
     memcpy(buf.data(rt), output, output_len);
 
@@ -105,8 +103,7 @@ void add_rsa_module(jsi::Runtime &rt,
   key_module.setProperty(rt, "publicKeyToDERX509Bytes",
                          std::move(rsa_public_to_DER_X509_bytes));
 
-  auto DER_X509_bytes_to_rsa_public =
-      HOST_STATIC_FN("DER_X509_bytes_to_rsa_public") {
+  auto DER_X509_bytes_to_rsa_public = HFN0 {
     auto array_buffer = args[0].asObject(rt).getArrayBuffer(rt);
     size_t len = array_buffer.size(rt);
     auto *data = new uint8_t[len];
@@ -130,15 +127,14 @@ void add_rsa_module(jsi::Runtime &rt,
   key_module.setProperty(rt, "publicKeyFromDERX509Bytes",
                          std::move(DER_X509_bytes_to_rsa_public));
 
-  auto rsa_private_to_DER_PKCS8_bytes =
-      HOST_STATIC_FN("rsa_private_to_DER_PKCS8_bytes") {
+  auto rsa_private_to_DER_PKCS8_bytes = HFN0 {
     std::shared_ptr<RsaPrivateKey> private_key =
         args[0].asObject(rt).getNativeState<RsaPrivateKey>(rt);
     const char *err;
     auto *output =
         new uint8_t[1024 * 1024]; // Reserve a 1MB buffer, because we do not
                                   // know the size of the output before hand
-    size_t output_len;
+    size_t output_len = 0;
 
     aws_lc::rsa_private_key_to_DER_PKCS8_bytes(
         private_key.get()->rsa_private_key, output, &output_len, &err);
@@ -146,7 +142,8 @@ void add_rsa_module(jsi::Runtime &rt,
     jsi::Function array_buffer_ctor =
         rt.global().getPropertyAsFunction(rt, "ArrayBuffer");
     jsi::Object o =
-        array_buffer_ctor.callAsConstructor(rt, (int)output_len).getObject(rt);
+        array_buffer_ctor.callAsConstructor(rt, static_cast<int>(output_len))
+            .getObject(rt);
     jsi::ArrayBuffer buf = o.getArrayBuffer(rt);
     memcpy(buf.data(rt), output, output_len);
 
@@ -157,8 +154,7 @@ void add_rsa_module(jsi::Runtime &rt,
   key_module.setProperty(rt, "privateKeyToDERPKCS8Bytes",
                          std::move(rsa_private_to_DER_PKCS8_bytes));
 
-  auto DER_PKCS8_bytes_to_rsa_private =
-      HOST_STATIC_FN("DER_PKCS8_bytes_to_rsa_private") {
+  auto DER_PKCS8_bytes_to_rsa_private = HFN0 {
     auto array_buffer = args[0].asObject(rt).getArrayBuffer(rt);
     size_t len = array_buffer.size(rt);
     auto *data = new uint8_t[len];
@@ -184,7 +180,7 @@ void add_rsa_module(jsi::Runtime &rt,
 
   rsa_module.setProperty(rt, "Key", std::move(key_module));
 
-  auto oaep_encrypt = HOST_STATIC_FN("oaep_encrypt") {
+  auto oaep_encrypt = HFN0 {
     auto args_obj = args[0].asObject(rt);
 
     aws_lc::RsaOaepEncryptionAlgorithm algorithm =
@@ -199,34 +195,43 @@ void add_rsa_module(jsi::Runtime &rt,
 
     if (args_obj.hasProperty(rt, "label")) {
     }
+
     void *oaep_public_key_handle;
-    size_t output_len;
+    size_t output_len = 0;
     const char *err;
 
-    aws_lc::generate_rsa_oaep_key(public_key.get()->rsa_public_key,
-                                  &oaep_public_key_handle, &output_len, &err);
+    aws_lc::RsaError oaep_key_status = aws_lc::generate_rsa_oaep_key(
+        public_key->rsa_public_key, &oaep_public_key_handle, &output_len, &err);
+
+    if (oaep_key_status != aws_lc::RsaError::Ok) {
+      throw std::runtime_error(err ? err : "Failed to generate OAEP key");
+    }
 
     auto *output = new uint8_t[output_len];
 
-    aws_lc::encrypt_with_rsa_oaep_key(
+    aws_lc::RsaError encrypt_status = aws_lc::encrypt_with_rsa_oaep_key(
         algorithm, oaep_public_key_handle,
         reinterpret_cast<const unsigned char *>(plaintext.c_str()),
         plaintext.length(), output, &output_len, &err);
 
+    if (encrypt_status != aws_lc::RsaError::Ok) {
+      delete[] output;
+      throw std::runtime_error(err ? err : "RSA OAEP encryption failed");
+    }
+
     jsi::Function array_buffer_ctor =
         rt.global().getPropertyAsFunction(rt, "ArrayBuffer");
     jsi::Object o =
-        array_buffer_ctor.callAsConstructor(rt, (int)output_len).getObject(rt);
+        array_buffer_ctor.callAsConstructor(rt, static_cast<int>(output_len))
+            .getObject(rt);
     jsi::ArrayBuffer buf = o.getArrayBuffer(rt);
     memcpy(buf.data(rt), output, output_len);
 
     return o;
   });
-
   rsa_module.setProperty(rt, "oaepEncrypt", std::move(oaep_encrypt));
 
-  auto oaep_decrypt = HOST_STATIC_FN("oaep_decrypt") {
-
+  auto oaep_decrypt = HFN0 {
     auto args_obj = args[0].asObject(rt);
     aws_lc::RsaOaepEncryptionAlgorithm algorithm =
         rsa_oaep_encryption_algorithm_from_double(
@@ -245,7 +250,7 @@ void add_rsa_module(jsi::Runtime &rt,
     // Allocate buffer for output - max plaintext size is typically same as
     // ciphertext
     auto *output = new uint8_t[cipher_text_len];
-    size_t output_len;
+    size_t output_len = 0;
     const char *err;
 
     aws_lc::RsaError status = aws_lc::rsa_oaep_decrypt(

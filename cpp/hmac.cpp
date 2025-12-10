@@ -2,6 +2,9 @@
 #include "HmacKey.hpp"
 #include "OPThreadPool.hpp"
 #include "macros.hpp"
+#include "utils.hpp"
+#include <any>
+#include <utility>
 
 namespace opawslc {
 namespace jsi = facebook::jsi;
@@ -16,12 +19,10 @@ aws_lc::CHmacAlgorithm hmac_algorithm_from_double(double value) {
   return static_cast<aws_lc::CHmacAlgorithm>(intValue);
 }
 
-void add_hmac_module(jsi::Runtime &rt,
-                     std::shared_ptr<facebook::react::CallInvoker> invoker,
-                     jsi::Object &root_module) {
+void add_hmac_module(jsi::Runtime &rt, jsi::Object &root_module) {
   auto base_module = jsi::Object(rt);
 
-  auto generate = HOST_STATIC_FN("generate") {
+  auto generate = HFN0 {
     aws_lc::CHmacAlgorithm algorithm =
         hmac_algorithm_from_double(args[0].asNumber());
     std::shared_ptr<HmacKey> key = std::make_shared<HmacKey>(algorithm);
@@ -37,12 +38,12 @@ void add_hmac_module(jsi::Runtime &rt,
   key_module.setProperty(rt, "generate", std::move(generate));
   base_module.setProperty(rt, "Key", std::move(key_module));
 
-  auto sign = HOST_STATIC_FN("sign") {
+  auto sign = HFN0 {
     std::shared_ptr<HmacKey> key =
         args[0].asObject(rt).getNativeState<HmacKey>(rt);
     std::string message = args[1].asString(rt).utf8(rt);
     uint8_t output_buffer[64];
-    size_t output_len;
+    size_t output_len = 0;
     const char *err;
 
     auto status = aws_lc::hmac_sign(
@@ -57,14 +58,15 @@ void add_hmac_module(jsi::Runtime &rt,
     jsi::Function array_buffer_ctor =
         rt.global().getPropertyAsFunction(rt, "ArrayBuffer");
     jsi::Object o =
-        array_buffer_ctor.callAsConstructor(rt, (int)output_len).getObject(rt);
+        array_buffer_ctor.callAsConstructor(rt, static_cast<int>(output_len))
+            .getObject(rt);
     jsi::ArrayBuffer buf = o.getArrayBuffer(rt);
     memcpy(buf.data(rt), output_buffer, output_len);
 
     return o;
   });
 
-  auto verify = HOST_STATIC_FN("verify") {
+  auto verify = HFN0 {
     std::shared_ptr<HmacKey> key =
         args[0].asObject(rt).getNativeState<HmacKey>(rt);
     std::string message = args[1].asString(rt).utf8(rt);
@@ -85,106 +87,68 @@ void add_hmac_module(jsi::Runtime &rt,
     }
   });
 
-  auto sign_async = HOST_STATIC_FN("signAsync") {
+  auto sign_async = HFN0 {
     std::shared_ptr<HmacKey> key =
         args[0].asObject(rt).getNativeState<HmacKey>(rt);
     std::string message = args[1].asString(rt).utf8(rt);
 
-    auto promiseCtr = rt.global().getPropertyAsFunction(rt, "Promise");
-    auto promise = promiseCtr.callAsConstructor(
-        rt, HOST_STATIC_FN("executor") {
-      auto resolve = std::make_shared<jsi::Value>(rt, args[0]);
-      auto reject = std::make_shared<jsi::Value>(rt, args[1]);
-      auto task = [&rt, message, key, invoker, resolve, reject]() {
-        uint8_t output_buffer[64];
-        size_t output_len;
-        const char *err;
-        try {
+    // Use shared_ptr to ensure the buffer lives across async calls
+    auto output_buffer = std::make_shared<std::array<uint8_t, 64>>();
+    auto output_len = std::make_shared<size_t>(0);
+
+    return promisify(
+        rt,
+        [output_buffer, output_len, message, key] {
+          const char *err;
           auto status = aws_lc::hmac_sign(
               key.get()->hmac_key,
               reinterpret_cast<const unsigned char *>(message.c_str()),
-              message.length(), output_buffer, &output_len, &err);
+              message.length(), output_buffer->data(), output_len.get(), &err);
 
           if (status != aws_lc::CHmacError::Ok) {
             throw std::runtime_error(err);
           }
-
-          invoker->invokeAsync([&rt, output_buffer, output_len, resolve]() {
-            jsi::Function array_buffer_ctor =
-                rt.global().getPropertyAsFunction(rt, "ArrayBuffer");
-            jsi::Object o =
-                array_buffer_ctor.callAsConstructor(rt, (int)output_len)
-                    .getObject(rt);
-            jsi::ArrayBuffer buf = o.getArrayBuffer(rt);
-            memcpy(buf.data(rt), output_buffer, output_len);
-
-            resolve->asObject(rt).asFunction(rt).call(rt, std::move(o));
-          });
-        } catch (const std::exception &e) {
-          std::string what = e.what();
-          invoker->invokeAsync([&rt, what, reject]() {
-            auto errorCtr = rt.global().getPropertyAsFunction(rt, "Error");
-            auto error = errorCtr.callAsConstructor(
-                rt, jsi::String::createFromUtf8(rt, what));
-            reject->asObject(rt).asFunction(rt).call(rt, std::move(error));
-          });
-        }
-      };
-
-      ThreadPool::getInstance().queueWork(task);
-
-      return {};
-    }));
-    return promise;
+          return 0;
+        },
+        [output_buffer, output_len](jsi::Runtime &rt, std::any prev) {
+          jsi::Function array_buffer_ctor =
+              rt.global().getPropertyAsFunction(rt, "ArrayBuffer");
+          jsi::Object o =
+              array_buffer_ctor
+                  .callAsConstructor(rt, static_cast<int>(*output_len))
+                  .getObject(rt);
+          jsi::ArrayBuffer buf = o.getArrayBuffer(rt);
+          memcpy(buf.data(rt), output_buffer->data(), *output_len);
+          return buf;
+        });
   });
 
-  auto verify_async = HOST_STATIC_FN("verifyAsync") {
+  auto verify_async = HFN0 {
     std::shared_ptr<HmacKey> key =
         args[0].asObject(rt).getNativeState<HmacKey>(rt);
     std::string message = args[1].asString(rt).utf8(rt);
     auto tag = args[2].asObject(rt).getArrayBuffer(rt);
     auto tag_size = tag.size(rt);
-    uint8_t *data = new uint8_t[tag_size];
+    auto *data = new uint8_t[tag_size];
     memcpy(data, tag.data(rt), tag_size);
 
-    auto promiseCtr = rt.global().getPropertyAsFunction(rt, "Promise");
-    auto promise = promiseCtr.callAsConstructor(
-        rt, HOST_STATIC_FN("executor") {
-      auto resolve = std::make_shared<jsi::Value>(rt, args[0]);
-      auto reject = std::make_shared<jsi::Value>(rt, args[1]);
-      auto task = [&rt, message, key, data, tag_size, invoker, resolve,
-                   reject]() {
-        try {
+    return promisify(
+        rt,
+        [&key, &data, message, tag_size]() {
           auto status = aws_lc::hmac_verify(
               key.get()->hmac_key,
               reinterpret_cast<const unsigned char *>(message.c_str()),
               message.length(), data, tag_size);
 
           if (status != aws_lc::CHmacError::Ok) {
-            invoker->invokeAsync([&rt, resolve]() {
-              resolve->asObject(rt).asFunction(rt).call(rt, false);
-            });
-          } else {
-            invoker->invokeAsync([&rt, resolve]() {
-              resolve->asObject(rt).asFunction(rt).call(rt, true);
-            });
+            return false;
           }
-        } catch (const std::exception &e) {
-          std::string what = e.what();
-          invoker->invokeAsync([&rt, what, reject]() {
-            auto errorCtr = rt.global().getPropertyAsFunction(rt, "Error");
-            auto error = errorCtr.callAsConstructor(
-                rt, jsi::String::createFromUtf8(rt, what));
-            reject->asObject(rt).asFunction(rt).call(rt, std::move(error));
-          });
-        }
-      };
 
-      ThreadPool::getInstance().queueWork(task);
-
-      return {};
-    }));
-    return promise;
+          return true;
+        },
+        [](jsi::Runtime &rt, std::any prev) {
+          return std::any_cast<bool>(prev);
+        });
   });
 
   base_module.setProperty(rt, "sign", std::move(sign));
