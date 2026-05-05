@@ -1,9 +1,9 @@
-name: 'release'
+name: "release"
 
 on:
   push:
     tags:
-      - '*'
+      - "*"
 
 permissions:
   contents: write
@@ -14,21 +14,22 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "24"
       - name: enable corepack
         run: corepack enable
         shell: bash
       - name: Cache dependencies
         id: yarn-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             **/node_modules
             .yarn/install-state.gz
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}-${{ hashFiles('**/package.json', '!node_modules/**') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}-${{
+            hashFiles('**/package.json', '!node_modules/**') }}
           restore-keys: |
             ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
             ${{ runner.os }}-yarn-
@@ -38,9 +39,9 @@ jobs:
           TAG_NAME=${GITHUB_REF#refs/tags/}
           jq --arg version "$TAG_NAME" '.version = $version' package.json > tmp.$$.json && mv tmp.$$.json package.json
 
-      - uses: JS-DevTools/npm-publish@v3
-        with:
-          token: ${{ secrets.NPM_TOKEN }}
+      - name: Publish to npm
+        run: npm publish
+
       - name: Create Release
         uses: actions/create-release@v1
         env:
