@@ -1,5 +1,6 @@
 ARCHS_IOS = aarch64-apple-ios aarch64-apple-ios-sim
 ARCHS_ANDROID = aarch64-linux-android armv7-linux-androideabi x86_64-linux-android i686-linux-android
+IOS_DEPLOYMENT_TARGET = 13.0
 IOS_LIB_FILE = libaws_lc.dylib
 IOS_FINAL_LIB_FILE = libaws_lc
 LIB_FILE = libaws_lc.so
@@ -88,8 +89,9 @@ copy-ios:
 	cd ../example/ios && yarn pods
 
 ios-build:
-	cargo build --release --target aarch64-apple-ios 
-	cargo build --release --target aarch64-apple-ios-sim 
+	rm -rf target/aarch64-apple-ios/release/build/aws-lc-fips-sys-* target/aarch64-apple-ios-sim/release/build/aws-lc-fips-sys-*
+	IPHONEOS_DEPLOYMENT_TARGET=$(IOS_DEPLOYMENT_TARGET) CMAKE_OSX_DEPLOYMENT_TARGET=$(IOS_DEPLOYMENT_TARGET) cargo build --release --target aarch64-apple-ios
+	IPHONEOS_DEPLOYMENT_TARGET=$(IOS_DEPLOYMENT_TARGET) CMAKE_OSX_DEPLOYMENT_TARGET=$(IOS_DEPLOYMENT_TARGET) cargo build --release --target aarch64-apple-ios-sim
 
 android-ci: android-ci-build copy-android
 
